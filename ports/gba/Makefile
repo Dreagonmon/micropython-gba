@@ -1,0 +1,114 @@
+# Using DEVKITARM
+#---------------------------------------------------------------------------------
+.SUFFIXES:
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro)
+endif
+ifeq ($(strip $(DEVKITARM)),)
+$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+endif
+export PATH := $(DEVKITPRO)/portlibs/gba/bin:$(DEVKITPRO)/portlibs/armv4t/bin:$(PATH)
+PORTLIBS	:= $(DEVKITPRO)/portlibs/gba $(DEVKITPRO)/portlibs/armv4t
+CROSS_COMPILE = $(DEVKITARM)/bin/arm-none-eabi-
+
+TARGET		:= micropython
+BUILD		:= build
+GAME_TITLE  := $(TARGET)
+GAME_CODE	:= 0000
+MAKER_CODE	:= 00
+MGBA_EMU	:= mgba-qt
+
+ifeq ($(strip $(GAME_TITLE)),)
+GAME_TITLE	:=	$(notdir $(OUTPUT))
+endif
+
+ifeq ($(strip $(GAME_CODE)),)
+GAME_CODE	:=	0000
+endif
+
+ifeq ($(strip $(MAKER_CODE)),)
+MAKER_CODE	:=	00
+endif
+
+# Include the core environment definitions; this will set $(TOP).
+include ../../py/mkenv.mk
+# fix some path
+include $(DEVKITARM)/base_tools
+
+# qstr definitions (must come before including py.mk)
+QSTR_DEFS = qstrdefsport.h
+
+# MicroPython feature configurations
+MICROPY_ROM_TEXT_COMPRESSION ?= 1
+
+# include py core make definitions
+include $(TOP)/py/py.mk
+include $(TOP)/extmod/extmod.mk
+
+#---------------------------------------------------------------------------------
+# options for code generation
+#---------------------------------------------------------------------------------
+ARCH	:=	-mthumb -mthumb-interwork
+
+CFLAGS	:=	-g -Wall -O2 \
+		-mcpu=arm7tdmi -mtune=arm7tdmi \
+		$(ARCH)
+CFLAGS	+=	-std=gnu99
+
+LDFLAGS	=	-specs=gba.specs -g $(ARCH) -Wl,-Map,$(BUILD)/$(TARGET).map
+
+#---------------------------------------------------------------------------------
+# any extra libraries we wish to link with the project
+#---------------------------------------------------------------------------------
+LIBS	:= -lmm -lgba
+LDFLAGS += -L$(DEVKITPRO)/libgba/lib
+
+
+#---------------------------------------------------------------------------------
+# list of directories containing libraries, this must be the top level containing
+# include and lib
+#---------------------------------------------------------------------------------
+# LIBDIRS	:=	$(LIBGBA)
+
+# include
+INC += -I.
+INC += -I$(TOP)
+INC += -I$(BUILD)
+INC += -I$(DEVKITPRO)/libgba/include
+CFLAGS	+=	$(INC)
+LDFLAGS += -L$(DEVKITPRO)/libgba/lib
+
+# source file
+SRC_C = \
+	main.c \
+	mgba.c \
+	mphalport.c \
+	shared/runtime/gchelper_generic.c \
+	shared/runtime/stdout_helpers.c
+
+SRC_QSTR += shared/readline/readline.c shared/runtime/pyexec.c
+
+# Define the required object files.
+OBJ = $(PY_CORE_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
+
+# Define the top-level target, the main firmware.
+all: $(BUILD)/$(TARGET).gba
+
+run: $(BUILD)/$(TARGET).gba
+	$(MGBA_EMU) -l 255 $(BUILD)/$(TARGET).gba
+
+%.gba: %.elf
+	$(Q)$(OBJCOPY) -O binary $< $@
+	@echo built ... $(notdir $@)
+	$(Q)gbafix $@ -t$(GAME_TITLE) -c$(GAME_CODE) -m$(MAKER_CODE)
+
+# Define how to build the firmware.
+$(BUILD)/$(TARGET).elf: $(OBJ)
+	$(ECHO)
+	$(ECHO) "LINK $@"
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(Q)$(SIZE) $@
+
+# Include remaining core make rules.
+include $(TOP)/py/mkrules.mk
