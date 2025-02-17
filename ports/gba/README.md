@@ -8,6 +8,7 @@
 # Build
 
 ```bash
+make submodules
 make
 ```
 

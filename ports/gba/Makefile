@@ -40,7 +40,10 @@ include $(DEVKITARM)/base_tools
 QSTR_DEFS = qstrdefsport.h
 
 # MicroPython feature configurations
-MICROPY_ROM_TEXT_COMPRESSION ?= 1
+MICROPY_PREVIEW_VERSION_2 = 1
+MICROPY_ROM_TEXT_COMPRESSION ?= 0
+FROZEN_MANIFEST = frozen_manifest.py
+MICROPY_VFS_LFS2 := 1
 
 # include py core make definitions
 include $(TOP)/py/py.mk
@@ -49,19 +52,19 @@ include $(TOP)/extmod/extmod.mk
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-mthumb -mthumb-interwork
+# MPY_CROSS_FLAGS = -march=armv6m
 
-CFLAGS	:=	-g -Wall -O2 \
+CFLAGS	+=	-g -Wall -O2 \
 		-mcpu=arm7tdmi -mtune=arm7tdmi \
-		$(ARCH)
+		-mthumb -mthumb-interwork
 CFLAGS	+=	-std=gnu99
 
-LDFLAGS	=	-specs=gba.specs -g $(ARCH) -Wl,-Map,$(BUILD)/$(TARGET).map
+LDFLAGS	+=	-specs=gba.specs -g -mthumb -mthumb-interwork -Wl,-Map,$(BUILD)/$(TARGET).map
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:= -lmm -lgba
+LIBS	:= -lm -lgba
 LDFLAGS += -L$(DEVKITPRO)/libgba/lib
 
 
@@ -80,17 +83,19 @@ CFLAGS	+=	$(INC)
 LDFLAGS += -L$(DEVKITPRO)/libgba/lib
 
 # source file
-SRC_C = \
+SRC_C += \
 	main.c \
 	mgba.c \
 	mphalport.c \
+	shared/readline/readline.c \
 	shared/runtime/gchelper_generic.c \
-	shared/runtime/stdout_helpers.c
+	shared/runtime/stdout_helpers.c \
+	shared/runtime/pyexec.c
 
 SRC_QSTR += shared/readline/readline.c shared/runtime/pyexec.c
 
 # Define the required object files.
-OBJ = $(PY_CORE_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
+OBJ += $(PY_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
 
 # Define the top-level target, the main firmware.
 all: $(BUILD)/$(TARGET).gba
@@ -109,6 +114,10 @@ $(BUILD)/$(TARGET).elf: $(OBJ)
 	$(ECHO) "LINK $@"
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 	$(Q)$(SIZE) $@
+
+$(BUILD)/_frozen_mpy.c: $(TOP)/tests/frozen/frozentest.mpy $(BUILD)/genhdr/qstrdefs.generated.h
+	$(ECHO) "MISC freezing bytecode"
+	$(Q)$(TOP)/tools/mpy-tool.py -f -q $(BUILD)/genhdr/qstrdefs.preprocessed.h -mlongint-impl=none $< > $@
 
 # Include remaining core make rules.
 include $(TOP)/py/mkrules.mk
