@@ -9,9 +9,12 @@ c = add(0.5, 0.8)
 print(c)
 
 import vfs
-print(vfs.__dict__)
+# print(vfs.__dict__)
 import os
-print(os.__dict__)
+# print(os.__dict__)
+
+import machine
+print(help(machine))
 
 while True:
     pass

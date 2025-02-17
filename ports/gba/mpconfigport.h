@@ -14,6 +14,7 @@
 #define MICROPY_EMIT_INLINE_THUMB               (1)
 
 // Fine control over Python builtins, classes, modules, etc.
+#define MICROPY_PY_BUILTINS_HELP                (1)
 #define MICROPY_PY_ASYNC_AWAIT                  (1)
 #define MICROPY_PY_BUILTINS_SET                 (1)
 #define MICROPY_PY_ATTRTUPLE                    (1)
@@ -23,6 +24,8 @@
 #define MICROPY_PY_STRUCT                       (1)
 #define MICROPY_PY_OS                           (1)
 #define MICROPY_VFS                             (1)
+#define MICROPY_PY_MACHINE                      (1)
+#define MICROPY_PY_MACHINE_MEMX                 (1)
 
 // Type definitions for the specific machine.
 #define MP_SSIZE_MAX (0x7fffffff)

@@ -27,12 +27,6 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-// Handle uncaught exceptions (should never be reached in a correct C implementation).
-void nlr_jump_fail(void *val) {
-    for (;;) {
-    }
-}
-
 // Do a garbage collection cycle.
 void gc_collect(void) {
     gc_collect_start();

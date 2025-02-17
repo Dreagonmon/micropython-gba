@@ -39,6 +39,13 @@ mp_uint_t mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
     return len;
 }
 
+// Handle uncaught exceptions (should never be reached in a correct C implementation).
+void nlr_jump_fail(void *val) {
+    mgba_printf(MGBA_LOG_ERROR, "[NLR JUMP]");
+    for (;;) {
+    }
+}
+
 #ifndef MICROPY_VFS
 // Support IO
 mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
@@ -62,3 +69,9 @@ mp_lexer_t *mp_lexer_new_from_file(qstr filename) {
 uint64_t mp_hal_time_ns(void) {
     return 0;
 }
+
+#ifdef MICROPY_PY_MACHINE
+void mp_machine_idle(void) {
+    // do nothing
+}
+#endif
