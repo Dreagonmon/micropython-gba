@@ -1,8 +1,6 @@
 #include "py/mpconfig.h"
+#include "mgba.h" // for print debug
 
-static inline mp_uint_t mp_hal_ticks_ms(void) {
-    return 0;
-}
+void gba_init(void);
 
-static inline void mp_hal_set_interrupt_char(char c) {
-}
+void mp_hal_set_interrupt_char(char c);

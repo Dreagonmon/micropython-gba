@@ -53,18 +53,20 @@ include $(TOP)/extmod/extmod.mk
 # options for code generation
 #---------------------------------------------------------------------------------
 # MPY_CROSS_FLAGS = -march=armv6m
-
-CFLAGS	+=	-g -Wall -O2 \
-		-mcpu=arm7tdmi -mtune=arm7tdmi \
-		-mthumb -mthumb-interwork
+ARCHFLAGS = -mthumb -mthumb-interwork
+CFLAGS	+=	-g -Wall -O3 \
+			-mcpu=arm7tdmi -mtune=arm7tdmi \
+ 			-fomit-frame-pointer\
+			-ffast-math \
+			$(ARCHFLAGS)
 CFLAGS	+=	-std=gnu99
 
-LDFLAGS	+=	-specs=gba.specs -g -mthumb -mthumb-interwork -Wl,-Map,$(BUILD)/$(TARGET).map
+LDFLAGS	+=	-specs=gba.specs -g $(ARCHFLAGS) -Wl,-Map,$(BUILD)/$(TARGET).map
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:= -lm -lgba
+GBALIBS	:= -lm -lgba
 LDFLAGS += -L$(DEVKITPRO)/libgba/lib
 
 
@@ -87,12 +89,14 @@ SRC_C += \
 	main.c \
 	mgba.c \
 	mphalport.c \
+	modrombdev.c \
 	shared/readline/readline.c \
 	shared/runtime/gchelper_generic.c \
 	shared/runtime/stdout_helpers.c \
+	shared/runtime/sys_stdio_mphal.c \
 	shared/runtime/pyexec.c
 
-SRC_QSTR += shared/readline/readline.c shared/runtime/pyexec.c
+SRC_QSTR += $(SRC_C)
 
 # Define the required object files.
 OBJ += $(PY_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
@@ -112,7 +116,7 @@ run: $(BUILD)/$(TARGET).gba
 $(BUILD)/$(TARGET).elf: $(OBJ)
 	$(ECHO)
 	$(ECHO) "LINK $@"
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(GBALIBS)
 	$(Q)$(SIZE) $@
 
 $(BUILD)/_frozen_mpy.c: $(TOP)/tests/frozen/frozentest.mpy $(BUILD)/genhdr/qstrdefs.generated.h

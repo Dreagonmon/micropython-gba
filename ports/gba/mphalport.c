@@ -4,12 +4,33 @@
 #include "py/mperrno.h"
 #include "py/mpconfig.h"
 #include "py/obj.h"
+#include <gba_interrupt.h>
 #include "mgba.h"
+#include "hal_time.h"
+#include "hal_rom.h"
+
+#define MICROPY_BEGIN_ATOMIC_SECTION() (0)
 
 #define MAX_PRINT_LENGTH (80)
 static char pbuffer[MAX_PRINT_LENGTH + 1] = {0};
 static char *pnow = ((char *) pbuffer);
 static char * const ptop = ((char *) pbuffer) + MAX_PRINT_LENGTH;
+
+void gba_init(void) {
+    // init rom
+    init_rom();
+    // init irq for all
+    irqInit(); 
+    REG_IME = 1;
+    // timer
+    init_hal_time();
+    // screen
+    irqEnable(IRQ_VBLANK);
+}
+
+// no console, doing nothing
+void mp_hal_set_interrupt_char(char c) {
+}
 
 // Read nothing
 int mp_hal_stdin_rx_chr(void) {
@@ -41,37 +62,8 @@ mp_uint_t mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
 
 // Handle uncaught exceptions (should never be reached in a correct C implementation).
 void nlr_jump_fail(void *val) {
-    mgba_printf(MGBA_LOG_ERROR, "[NLR JUMP]");
-    for (;;) {
+    if (mgba_console_open()) {
+        mgba_printf(MGBA_LOG_ERROR, "NLR jump failed, val=%p\n", val);
     }
+    while (1);
 }
-
-#ifndef MICROPY_VFS
-// Support IO
-mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
-    return mp_const_none;
-}
-
-MP_DEFINE_CONST_FUN_OBJ_KW(mp_builtin_open_obj, 1, mp_builtin_open);
-
-// There is no filesystem so stat'ing returns nothing.
-mp_import_stat_t mp_import_stat(const char *path) {
-    return MP_IMPORT_STAT_NO_EXIST;
-}
-#endif
-
-// There is no filesystem so opening a file raises an exception.
-mp_lexer_t *mp_lexer_new_from_file(qstr filename) {
-    mp_raise_OSError(MP_ENOENT);
-}
-
-// from py/mphal.h
-uint64_t mp_hal_time_ns(void) {
-    return 0;
-}
-
-#ifdef MICROPY_PY_MACHINE
-void mp_machine_idle(void) {
-    // do nothing
-}
-#endif

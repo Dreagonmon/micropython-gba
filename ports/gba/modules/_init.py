@@ -1,20 +1,25 @@
-print("hello~")
+help('modules')
 
-def add(a: int, b: int) -> int:
-    return a + b
+import platform
+print(platform.platform())
 
-print(123)
+# mount filesystem
+from _vfs import init_filesystem as __ifs
+__ifs()
 
-c = add(0.5, 0.8)
-print(c)
-
-import vfs
-# print(vfs.__dict__)
 import os
-# print(os.__dict__)
+print(os.listdir())
 
-import machine
-print(help(machine))
+# import machine
+# import time
+# start = time.ticks_ms()
+# print(start)
+# while True:
+#     pass
 
-while True:
-    pass
+# while True:
+#     machine.idle()
+#     now = time.ticks_ms()
+#     print(now)
+#     if time.ticks_diff(now, start) > 5000:
+#         machine.reset()
