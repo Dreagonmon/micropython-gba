@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 // Python internal features.
+#define MICROPY_OBJ_BASE_ALIGNMENT              __attribute__((aligned(4)))
 #define MICROPY_CONFIG_ROM_LEVEL                (MICROPY_CONFIG_ROM_LEVEL_FULL_FEATURES)
 #define MICROPY_ERROR_REPORTING                 (MICROPY_ERROR_REPORTING_DETAILED)
 #define MICROPY_LONGINT_IMPL                    (MICROPY_LONGINT_IMPL_MPZ)

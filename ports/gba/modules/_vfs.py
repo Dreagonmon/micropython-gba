@@ -33,7 +33,6 @@ class RAMBlockDev:
 def init_filesystem():
     # try to mount rom filesystem
     bdev = RomBlockDevice()
-    help(bdev)
     try:
         mount(bdev, "/", readonly=True)
     except OSError as e:

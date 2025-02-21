@@ -90,6 +90,7 @@ SRC_C += \
 	mgba.c \
 	mphalport.c \
 	modrombdev.c \
+	modgba.c \
 	shared/readline/readline.c \
 	shared/runtime/gchelper_generic.c \
 	shared/runtime/stdout_helpers.c \

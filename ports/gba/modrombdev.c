@@ -60,7 +60,7 @@ __attribute__((optimize("O0"))) static mp_obj_t gba_rombdev_readblocks(size_t n_
     memcpy(bufinfo.buf, self->bdev->rom + offset, bufinfo.len);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(gba_rombdev_readblocks_obj, 3, 4, gba_rombdev_readblocks);
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(gba_rombdev_readblocks_fun_obj, 3, 4, gba_rombdev_readblocks);
 
 __attribute__((optimize("O0"))) static mp_obj_t gba_rombdev_ioctl(mp_obj_t self_in, mp_obj_t cmd_in, mp_obj_t arg_in) {
     gba_rombdev_obj_t *self = MP_OBJ_TO_PTR(self_in);
@@ -90,19 +90,19 @@ __attribute__((optimize("O0"))) static mp_obj_t gba_rombdev_ioctl(mp_obj_t self_
             return mp_const_none;
     }
 }
-static MP_DEFINE_CONST_FUN_OBJ_3(gba_rombdev_ioctl_obj, gba_rombdev_ioctl);
+static MP_DEFINE_CONST_FUN_OBJ_3(gba_rombdev_ioctl_fun_obj, gba_rombdev_ioctl);
 
 static mp_obj_t gba_rombdev_writeblocks(size_t n_args, const mp_obj_t *args) {
     // raise error, can't write to ROM
     mp_raise_OSError(MP_EACCES);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(gba_rombdev_writeblocks_obj, 3, 4, gba_rombdev_writeblocks);
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(gba_rombdev_writeblocks_fun_obj, 3, 4, gba_rombdev_writeblocks);
 
 static const mp_rom_map_elem_t gba_rombdev_locals_dict_table[] = {
-    { MP_ROM_QSTR(MP_QSTR_readblocks), MP_ROM_PTR(&gba_rombdev_readblocks_obj) },
-    { MP_ROM_QSTR(MP_QSTR_writeblocks), MP_ROM_PTR(&gba_rombdev_writeblocks_obj) },
-    { MP_ROM_QSTR(MP_QSTR_ioctl), MP_ROM_PTR(&gba_rombdev_ioctl_obj) },
+    { MP_ROM_QSTR(MP_QSTR_readblocks), MP_ROM_PTR(&gba_rombdev_readblocks_fun_obj) },
+    { MP_ROM_QSTR(MP_QSTR_writeblocks), MP_ROM_PTR(&gba_rombdev_writeblocks_fun_obj) },
+    { MP_ROM_QSTR(MP_QSTR_ioctl), MP_ROM_PTR(&gba_rombdev_ioctl_fun_obj) },
 };
 static MP_DEFINE_CONST_DICT(gba_rombdev_locals_dict, gba_rombdev_locals_dict_table);
 
