@@ -7,6 +7,7 @@
 #define MICROPY_LONGINT_IMPL                    (MICROPY_LONGINT_IMPL_MPZ)
 #define MICROPY_FLOAT_IMPL                      (MICROPY_FLOAT_IMPL_FLOAT)
 #define MICROPY_ENABLE_GC                       (1)
+#define MICROPY_PERSISTENT_CODE_LOAD            (1)
 #define MICROPY_HELPER_REPL                     (1)
 #define MICROPY_ALLOC_PATH_MAX                  (256)
 #define MICROPY_WARNINGS                        (1)
