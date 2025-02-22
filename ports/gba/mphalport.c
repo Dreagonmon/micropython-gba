@@ -27,6 +27,11 @@ void gba_init(void) {
     init_hal_time();
     // screen
     irqEnable(IRQ_VBLANK);
+    // DMA
+    irqEnable(IRQ_DMA0);
+    irqEnable(IRQ_DMA1);
+    irqEnable(IRQ_DMA2);
+    irqEnable(IRQ_DMA3);
 }
 
 // no console, doing nothing
