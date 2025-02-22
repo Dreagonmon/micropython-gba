@@ -17,6 +17,7 @@ static char *pnow = ((char *) pbuffer);
 static char * const ptop = ((char *) pbuffer) + MAX_PRINT_LENGTH;
 
 void gba_init(void) {
+    mgba_console_open();
     // init rom
     init_rom();
     // init irq for all

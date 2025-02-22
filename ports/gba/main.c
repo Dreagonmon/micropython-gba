@@ -11,15 +11,17 @@
 // Allocate memory for the MicroPython GC heap.
 EWRAM_BSS static char heap[MICROPY_HEAP_SIZE];
 #if MICROPY_ENABLE_PYSTACK
-EWRAM_BSS static char stack[MICROPY_HEAP_SIZE];
+#define STACK_ARRAY_SIZE (MICROPY_PYSTACK_SIZE / sizeof(mp_obj_t))
+IWRAM_DATA static mp_obj_t stack[STACK_ARRAY_SIZE];
 #endif
 
 int main(int argc, char **argv) {
     gba_init();
+    // C stack in the GBA's IWRAM, maybe start near the 0x03007FFF, count down.
+    mp_cstack_init_with_sp_here(GBA_CSTACK_SIZE);
     // Initialise the MicroPython runtime.
-    // mp_stack_ctrl_init(); // not in version 2
     #if MICROPY_ENABLE_PYSTACK
-    mp_pystack_init(stack, stack + sizeof(stack));
+    mp_pystack_init(stack, &stack[STACK_ARRAY_SIZE]);
     #endif
     gc_init(heap, heap + sizeof(heap));
     mp_init();
