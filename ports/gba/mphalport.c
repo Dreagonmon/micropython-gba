@@ -27,6 +27,8 @@ void gba_init(void) {
     init_hal_time();
     // screen
     irqEnable(IRQ_VBLANK);
+    // keypad
+    irqEnable(IRQ_KEYPAD);
     // DMA
     irqEnable(IRQ_DMA0);
     irqEnable(IRQ_DMA1);
