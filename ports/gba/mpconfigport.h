@@ -65,6 +65,17 @@ typedef long mp_off_t;
 #define MICROPY_HW_BOARD_NAME "Gameboy Advance"
 #define MICROPY_HW_MCU_NAME   "arm7tdmi"
 
+#define MICROPY_HEAP_IN_IRAM     (0)
+
+#if MICROPY_HEAP_IN_IRAM
+// py heap are in the IWRAM, the limit is 32k
+#define MICROPY_HEAP_SIZE        (24 * 1024)       // unit: bytes
+// the py stack and C stack is in the IWRAM, the limit is 32k
+#if MICROPY_ENABLE_PYSTACK
+#define MICROPY_PYSTACK_SIZE     (4 * 1024)        // unit: bytes
+#endif
+#define GBA_CSTACK_SIZE          (4 * 1024)         // unit: bytes
+#else
 // py heap are in the EWRAM, the limit is 256k
 #define MICROPY_HEAP_SIZE        (240 * 1024)       // unit: bytes
 // the py stack and C stack is in the IWRAM, the limit is 32k
@@ -72,6 +83,8 @@ typedef long mp_off_t;
 #define MICROPY_PYSTACK_SIZE     (16 * 1024)        // unit: bytes
 #endif
 #define GBA_CSTACK_SIZE          (8 * 1024)         // unit: bytes
+#endif // MICROPY_HEAP_IN_IRAM
+
 // the ROMBDEV is in the ROM, the limit is 32m
 #define GBA_ROMBDEV_SIZE         (30 * 1024 * 1024) // unit: bytes
 

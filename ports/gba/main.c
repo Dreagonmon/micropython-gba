@@ -9,7 +9,12 @@
 #include <gba_base.h>
 
 // Allocate memory for the MicroPython GC heap.
+#if MICROPY_HEAP_IN_IRAM
+IWRAM_DATA static char heap[MICROPY_HEAP_SIZE];
+#else
 EWRAM_BSS static char heap[MICROPY_HEAP_SIZE];
+#endif
+
 #if MICROPY_ENABLE_PYSTACK
 #define STACK_ARRAY_SIZE (MICROPY_PYSTACK_SIZE / sizeof(mp_obj_t))
 IWRAM_DATA static mp_obj_t stack[STACK_ARRAY_SIZE];
